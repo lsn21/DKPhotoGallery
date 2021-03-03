@@ -4,6 +4,7 @@
 //
 //  Created by ZhangAo on 15/7/20.
 //  Copyright (c) 2015年 ZhangAo. All rights reserved.
+//  Changed by Siarhei Lukyanau on 3/3/21.
 //
 
 import UIKit
@@ -71,6 +72,9 @@ DKPhotoGalleryContentDataSource, DKPhotoGalleryContentDelegate {
     internal var statusBar: UIView?
     internal weak var contentVC: DKPhotoGalleryContentVC?
     
+    var curentIndex = 0
+    
+    
     open override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -92,6 +96,7 @@ DKPhotoGalleryContentDataSource, DKPhotoGalleryContentDelegate {
             
             strongSelf.updateNavigation()
             strongSelf.galleryDelegate?.photoGallery?(strongSelf, didShow: index)
+            strongSelf.curentIndex = index
         }
         
         #if swift(>=4.2)
@@ -118,6 +123,8 @@ DKPhotoGalleryContentDataSource, DKPhotoGalleryContentDelegate {
                 self.statusBar = statusBar
             }            
         }
+        
+        setNavigationBar()
     }
     
     private lazy var doSetupOnce: () -> Void = {
@@ -240,6 +247,45 @@ DKPhotoGalleryContentDataSource, DKPhotoGalleryContentDelegate {
         }
     }
     
+    func setNavigationBar() {
+        let navBar = UINavigationBar()
+        navBar.barTintColor = .clear
+        navBar.tintColor = .white
+        navBar.isTranslucent = false
+        let navItem = UINavigationItem(title: "")
+        let saveItem = UIBarButtonItem(barButtonSystemItem: .save, target: nil, action: #selector(save))
+        let doneItem = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(dismissGallery))
+        navItem.leftBarButtonItem = saveItem
+        navItem.rightBarButtonItem = doneItem
+        navBar.setItems([navItem], animated: false)
+        self.view.addSubview(navBar)
+
+        navBar.translatesAutoresizingMaskIntoConstraints = false
+        if #available(iOS 11.0, *) {
+            let guide = self.view.safeAreaLayoutGuide
+            navBar.trailingAnchor.constraint(equalTo: guide.trailingAnchor).isActive = true
+            navBar.leadingAnchor.constraint(equalTo: guide.leadingAnchor).isActive = true
+            navBar.topAnchor.constraint(equalTo: guide.topAnchor).isActive = true
+            navBar.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        }
+        else {
+            NSLayoutConstraint(item: navBar, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
+            NSLayoutConstraint(item: navBar, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
+            NSLayoutConstraint(item: navBar, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
+            navBar.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        }
+    }
+
+    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+         print("Photo Saved Successfully")
+     }
+
+    @objc func save() {
+        if let image = item(for: curentIndex).image {
+            UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+        }
+     }
+
     private func setup(previewVC: DKPhotoBasePreviewVC) {
         previewVC.customLongPressActions = self.customLongPressActions
         previewVC.customPreviewActions = self.customPreviewActions
