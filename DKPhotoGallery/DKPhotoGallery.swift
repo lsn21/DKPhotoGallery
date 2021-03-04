@@ -252,12 +252,42 @@ DKPhotoGalleryContentDataSource, DKPhotoGalleryContentDelegate {
         navBar.barTintColor = .clear
         navBar.tintColor = .white
         navBar.isTranslucent = false
+        
         let navItem = UINavigationItem(title: "")
-        let saveItem = UIBarButtonItem(barButtonSystemItem: .save, target: nil, action: #selector(save))
-        let doneItem = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(dismissGallery))
+        
+        let saveImage = DKPhotoGalleryResource.saveImage()
+        let saveButton = UIButton(type: .custom)
+        saveButton.backgroundColor = .clear
+        saveButton.setTitleColor(.white, for: .normal)
+        saveButton.setTitleColor(.lightGray, for: .highlighted)
+        saveButton.titleLabel?.font = UIFont(name: "Roboto-Regular", size: 15)
+        saveButton.addTarget(self, action:#selector(save), for: .touchUpInside)
+        saveButton.setImage(saveImage, for: .normal)
+        saveButton.setTitle("Сохранить", for: .normal)
+        let imageViewWidth = saveButton.imageView?.frame.width ?? 24
+        saveButton.contentHorizontalAlignment = .left
+        saveButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        saveButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: imageViewWidth + 12, bottom: 0, right: 0)
+        saveButton.frame.size = CGSize(width: 200, height: 19)
+
+        let doneButton = UIButton(type: .custom)
+        doneButton.backgroundColor = .clear
+        doneButton.setTitleColor(.white, for: .normal)
+        doneButton.setTitleColor(.lightGray, for: .highlighted)
+        doneButton.titleLabel?.font = UIFont(name: "Roboto-Regular", size: 15)
+        doneButton.addTarget(self, action:#selector(dismissGallery), for: .touchUpInside)
+        doneButton.setTitle("Закрыть", for: .normal)
+        doneButton.contentHorizontalAlignment = .right
+        doneButton.frame.size = CGSize(width: 200, height: 19)
+
+        let saveItem = UIBarButtonItem(customView: saveButton)
+        let doneItem = UIBarButtonItem(customView: doneButton)
+
         navItem.leftBarButtonItem = saveItem
         navItem.rightBarButtonItem = doneItem
+
         navBar.setItems([navItem], animated: false)
+
         self.view.addSubview(navBar)
 
         navBar.translatesAutoresizingMaskIntoConstraints = false
@@ -278,6 +308,11 @@ DKPhotoGalleryContentDataSource, DKPhotoGalleryContentDelegate {
 
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
          print("Photo Saved Successfully")
+        let alert = UIAlertController(title: "Сообщение", message: "Фотография успешно сохранена", preferredStyle: .alert)
+        
+        let okAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        alert.addAction(okAction)
+        present(alert, animated: true, completion: nil)
      }
 
     @objc func save() {
