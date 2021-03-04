@@ -4,6 +4,7 @@
 //
 //  Created by ZhangAo on 15/8/11.
 //  Copyright (c) 2015年 ZhangAo. All rights reserved.
+//  Changed by Siarhei Lukyanau on 3/3/21.
 //
 
 import UIKit
@@ -24,6 +25,10 @@ public class DKPhotoGalleryResource {
     @objc public static var customLocalizationBlock: ((_ title: String) -> String?)?
 
     // MARK: - Images
+    
+    public class func saveImage() -> UIImage {
+        return imageForResource("SaveImage")
+    }
     
     public class func downloadFailedImage() -> UIImage {
         return imageForResource("ImageFailed")
